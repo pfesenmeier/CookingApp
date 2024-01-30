@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 using Nuke.Common;
@@ -9,6 +10,8 @@ using Nuke.Common.ProjectModel;
 using Nuke.Common.Tooling;
 using Nuke.Common.Utilities.Collections;
 
+using Serilog;
+
 using static Nuke.Common.EnvironmentInfo;
 using static Nuke.Common.IO.FileSystemTasks;
 using static Nuke.Common.IO.PathConstruction;
@@ -17,14 +20,11 @@ namespace Build;
 
 class Build : NukeBuild
 {
-    /// Support plugins are available for:
-    ///   - JetBrains ReSharper        https://nuke.build/resharper
-    ///   - JetBrains Rider            https://nuke.build/rider
-    ///   - Microsoft VisualStudio     https://nuke.build/visualstudio
-    ///   - Microsoft VSCode           https://nuke.build/vscode
-
     [Parameter("MigrationName")]
     readonly string MigrationName;
+
+    [Parameter("ConnectionString")]
+    readonly string ConnectionString;
 
     public static int Main() => Execute<Build>(x => x.Compile);
 
@@ -33,6 +33,8 @@ class Build : NukeBuild
 
     [PathVariable]
     readonly Tool Docker;
+
+    readonly AbsolutePath MigrationsDir = RootDirectory / "migrations";
 
     Target StartDb => _ => _
         .Executes(() =>
@@ -43,13 +45,33 @@ class Build : NukeBuild
         });
 
     Target CreateMigration => _ => _
+        .Requires(() => MigrationName)
         .Executes(() =>
         {
-            AbsolutePath MigrationsDir = RootDirectory / "migrations";
+            MigrationsDir.CreateDirectory();
             string newMigrationFile = Database.GenerateMigrationFileName(MigrationName);
-            (MigrationsDir / newMigrationFile).TouchFile();
+            AbsolutePath newMigrationFilePath = MigrationsDir / newMigrationFile;
+            newMigrationFilePath.TouchFile();
+            RelativePath pathOutput = RootDirectory.GetRelativePathTo(newMigrationFilePath);
+            Log.Information("Create New Migration {Migration}", pathOutput);
         });
 
+    Target ApplyMigrations => _ => _
+        .Requires(() => ConnectionString)
+        .Executes(async () =>
+        {
+            Database database = new(ConnectionString);
+            List<AbsolutePath> migrationFiles = [.. MigrationsDir.GlobFiles("*")];
+            migrationFiles.Sort((file1, file2) => file1.Name.CompareTo(file2.Name));
+
+            foreach (AbsolutePath file in migrationFiles)
+            {
+                await database.RunMigration(file);
+            }
+
+            // execute sql script or string...
+            // can use dbcontext / npgsql? 
+        });
 
     Target Clean => _ => _
         .Before(Restore)

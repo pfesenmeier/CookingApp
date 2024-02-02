@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+   <ItemGroup>
+
+     <Watch Include="Views\**\*.hbs" />
+     <!-- <Watch HotReload="true" Include="Views\**\*.hbs" OnWatchChange="RefreshBrowser" OnWatchChangeBuild="False" OnWatchChangeRefreshBrowser="True" /> -->
+     <!-- <Content Include="Views/**/*.hbs" OnWatchChange="RefreshBrowser" Watch="true" OnWatchChangeBuild="False" OnWatchChangeRefreshBrowser="True" /> -->
+      <!-- <Content Update="@(Content)" /> -->
+      <!-- <Compile Update="Views/**/*.hbs" Watch="true" /> -->
+  </ItemGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <InvariantGlobalization>true</InvariantGlobalization>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Handlebars.Net" Version="2.1.4" />
+    <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.1" />
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0" />
+  </ItemGroup>
+
+</Project>

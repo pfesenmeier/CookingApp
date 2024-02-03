@@ -1,0 +1,11 @@
+{{!< layout }}
+{{!-- {{#> layout }} --}}
+    <h1>My Counter Page</h1>
+    {{!-- <p> counter page: count is {{counter}}</p> --}}
+  <button hx-post="/counter" hx-target="#counter">
+    Increase counter
+  </button>
+  <div id="counter">
+  {{> counterDisplay counter=counter }}
+ </div>
+{{!-- {{/ layout }} --}}

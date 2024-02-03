@@ -7,7 +7,7 @@ public static class Counter
     {
         _ = app.MapGet("/counter", (TemplateDictionary templateDictionary) =>
         {
-            HandlebarsTemplate template = templateDictionary[@"Views\counter.hbs"];
+            HandlebarsTemplate template = templateDictionary[@"Views\counter\counter.hbs"];
 
             var data = new { counter };
             string html = template(data);
@@ -16,7 +16,7 @@ public static class Counter
 
         _ = app.MapPost("/counter", (TemplateDictionary templateDictionary) =>
         {
-            HandlebarsTemplate template = templateDictionary[@"Views\partials\counterDisplay.hbs"];
+            HandlebarsTemplate template = templateDictionary[@"Views\counter\partials\counterDisplay.hbs"];
 
             var data = new { counter = ++counter };
             string html = template(data);

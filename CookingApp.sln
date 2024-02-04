@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "_build", "build\_build.cspr
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CookingApp.Web", "CookingApp.Web\CookingApp.Web.csproj", "{4A714E13-B6A0-4709-B230-3C55B4E09B84}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CookingApp.Data", "CookingApp.Data\CookingApp.Data.csproj", "{BEA99331-37D2-4DD9-91C2-BD001992E6B1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -22,5 +24,9 @@ Global
 		{4A714E13-B6A0-4709-B230-3C55B4E09B84}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4A714E13-B6A0-4709-B230-3C55B4E09B84}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4A714E13-B6A0-4709-B230-3C55B4E09B84}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BEA99331-37D2-4DD9-91C2-BD001992E6B1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BEA99331-37D2-4DD9-91C2-BD001992E6B1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BEA99331-37D2-4DD9-91C2-BD001992E6B1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BEA99331-37D2-4DD9-91C2-BD001992E6B1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

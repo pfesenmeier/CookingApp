@@ -1,5 +1,8 @@
-using HandlebarsDotNet;
+using CookingApp.Data;
 using CookingApp.Web;
+using CookingApp.Web.Route;
+
+using HandlebarsDotNet;
 
 IHandlebars handlebars = Handlebars.Create(new HandlebarsConfiguration()
 {
@@ -13,9 +16,11 @@ WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+// compile all handlebar files
 {
     TemplateDictionary handlbarHandlers = [];
 
+    // TODO skip partials that are not used as HTMX...
     foreach (string template in Directory.EnumerateFiles("Views", "*.hbs", SearchOption.AllDirectories))
     {
         Console.WriteLine(template);
@@ -25,6 +30,14 @@ builder.Services.AddSwaggerGen();
     }
     builder.Services.AddSingleton(handlbarHandlers);
 }
+
+// start database connection
+string connectionString =
+  builder.Configuration.GetConnectionString("Postgres")
+  ?? throw new InvalidOperationException("ConnectionString 'Postgres' is not defined");
+builder.Services.AddDb(connectionString);
+
+builder.Services.AddScoped<RecipeRepository>();
 
 WebApplication app = builder.Build();
 
@@ -38,6 +51,7 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.MapCounter();
+app.MapRecipe();
 
 // .WithName("GetWeatherForecast")
 // .WithOpenApi();

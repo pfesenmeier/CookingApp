@@ -1,6 +1,7 @@
 using CookingApp.Data;
 using CookingApp.Web;
 using CookingApp.Web.Route;
+using CookingApp.Web.Routes;
 
 using HandlebarsDotNet;
 
@@ -27,9 +28,17 @@ builder.Services.AddSwaggerGen();
     foreach (string template in Directory.EnumerateFiles("Views", "*.hbs", SearchOption.AllDirectories))
     {
         Console.WriteLine(template);
-        HandlebarsTemplate handler = handlebars.CompileView(template);
 
-        handlbarHandlers.Add(template, handler);
+        try
+        {
+            HandlebarsTemplate handler = handlebars.CompileView(template);
+            handlbarHandlers.Add(template, handler);
+        }
+        catch (HandlebarsCompilerException)
+        {
+            Console.WriteLine($"Error compiling template {template}");
+            throw;
+        }
     }
     builder.Services.AddSingleton(handlbarHandlers);
 }
@@ -41,6 +50,7 @@ string connectionString =
 builder.Services.AddDb(connectionString);
 
 builder.Services.AddScoped<RecipeRepository>();
+builder.Services.AddScoped<UserRepository>();
 
 WebApplication app = builder.Build();
 
@@ -58,6 +68,7 @@ app.UseHttpsRedirection();
 
 app.MapCounter();
 app.MapRecipe();
+app.MapUserRoutes();
 
 // .WithName("GetWeatherForecast")
 // .WithOpenApi();

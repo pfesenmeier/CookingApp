@@ -12,7 +12,14 @@
 </head>
 
 <body>
-  <h6>my layout</h6>
+  <div id="navbar">
+    <div>CookingAdventures</div>
+    {{#if user}}
+        <div>Current user: <a href="/profile/{{user.id}}">{{user.username}}</div>
+    {{else}}
+        <a href="/login">login or signup</a>
+    {{/if}}
+  </div>
 
   {{!-- {{> @partial-block }} --}}
   {{{body}}}

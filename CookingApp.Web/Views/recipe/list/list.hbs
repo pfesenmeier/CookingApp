@@ -1,0 +1,16 @@
+{{!< layout }}
+<h1>Recipes</h1>
+<table>
+    <thead>
+        <tr>
+            <th scope="col">Title</tr>
+        </tr>
+    </thead>
+    <tbody>
+    {{#each recipes }}
+        <tr>
+            <th scope="row">{{title}}</th>
+        </tr>
+    {{/each}}
+    </tbody>
+</table>

@@ -1,11 +1,58 @@
 using CookingApp.Data;
+using CookingApp.Data.Model;
+
+using Microsoft.AspNetCore.Mvc;
 
 namespace CookingApp.Web.Route;
 
-public static class Recipe
+public static class RecipeRoutes
 {
     public static void MapRecipe(this WebApplication app)
     {
-        _ = app.MapGet("/recipe", async (RecipeRepository recipeRepository) => await recipeRepository.GetRecipes());
+        _ = app.MapGet("/recipe", async (
+                    RecipeRepository recipeRepository,
+                    TemplateDictionary templateDictionary) =>
+                {
+                    IEnumerable<Recipe> recipes = await recipeRepository.GetRecipes();
+                    Dictionary<string, object> renderData = [];
+                    renderData.Add("recipes", recipes);
+                    HandlebarsTemplate handlebarsTemplate =
+                        templateDictionary[@"Views\recipe\list\list.hbs"];
+                    return Results.Extensions.Html(handlebarsTemplate(renderData));
+                }).WithName("recipes");
+
+        _ = app.MapGet("/recipe/create", (TemplateDictionary templateDictionary) =>
+                {
+                    HandlebarsTemplate handler =
+                        templateDictionary[@"Views\recipe\create\create.hbs"];
+                    return Results.Extensions.Html(handler(null!));
+                });
+
+        _ = app.MapPost(
+            "/recipe/create",
+            async (
+                RecipeRepository recipeRepository,
+                [FromForm] string title,
+                [FromForm] string ingredients,
+                [FromForm] string steps
+            ) =>
+            {
+                const StringSplitOptions options =
+                    StringSplitOptions.TrimEntries |
+                    StringSplitOptions.RemoveEmptyEntries;
+                string[] ingredientList = ingredients.Split(Environment.NewLine, options);
+                string[] stepList = steps.Split(Environment.NewLine, options);
+
+                await recipeRepository.CreateAsync(title, ingredientList, stepList);
+
+                // TODO recipes frontend
+                // TODO only on success
+                // TODO show server error on error
+                // TODO repopulate with original values if bad
+                return Results.RedirectToRoute("recipes");
+            })
+            // TODO
+            .DisableAntiforgery();
     }
+
 }

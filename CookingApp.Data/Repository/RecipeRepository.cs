@@ -17,6 +17,16 @@ public class RecipeRepository(DbDataSource dbDataSource)
             ", new { title, ingredients, steps });
     }
 
+    public async Task<Recipe> GetRecipeAsync(Guid id)
+    {
+        DbConnection connection = await dbDataSource.OpenConnectionAsync();
+
+        IEnumerable<Recipe> recipes = await connection.QueryAsync<Recipe>(
+            "SELECT * FROM recipes WHERE \"id\" = @id", new { id });
+
+        return recipes.Single();
+    }
+
     public async Task<IEnumerable<Recipe>> GetRecipes()
     {
         DbConnection connection = await dbDataSource.OpenConnectionAsync();

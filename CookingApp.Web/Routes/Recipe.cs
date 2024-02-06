@@ -21,6 +21,17 @@ public static class RecipeRoutes
                     return Results.Extensions.Html(handlebarsTemplate(renderData));
                 }).WithName("recipes");
 
+        _ = app.MapGet("/recipe/{id}", async (
+                    TemplateDictionary templateDictionary,
+                    RecipeRepository recipeRepository,
+                    Guid id) =>
+                {
+                    Recipe recipe = await recipeRepository.GetRecipeAsync(id);
+                    HandlebarsTemplate handler =
+                        templateDictionary[@"Views\recipe\show\show.hbs"];
+                    return Results.Extensions.Html(handler(recipe));
+                });
+
         _ = app.MapGet("/recipe/create", (TemplateDictionary templateDictionary) =>
                 {
                     HandlebarsTemplate handler =

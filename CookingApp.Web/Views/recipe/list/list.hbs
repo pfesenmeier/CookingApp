@@ -9,7 +9,10 @@
     <tbody>
     {{#each recipes }}
         <tr>
-            <th scope="row">{{title}}</th>
+            <th scope="row">{{title}}</th> 
+            <td>
+                <a href="/recipe/{{id}}">View</a>
+            </td>
         </tr>
     {{/each}}
     </tbody>

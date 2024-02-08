@@ -14,12 +14,13 @@
 <body>
   {{!-- TODO https://web.dev/articles/website-navigation --}}
   <div id="navbar">
-    <div>CookingAdventures</div>
+    <h1>CookingAdventures</h1>
     {{#if user}}
-        <div>Current user: <a href="/profile/{{user.id}}">{{user.username}}</div>
+        <a href="/profile/{{user.id}}">{{user.username}}</a>
     {{else}}
-        <a href="/login">login or signup</a>
+        <a href="/login">Login</a>
     {{/if}}
+        <a href="/recipe">Recipes</a>
   </div>
 
   {{!-- {{> @partial-block }} --}}

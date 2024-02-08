@@ -1,4 +1,7 @@
 /* TODO https://www.joshwcomeau.com/css/custom-css-reset/ */
+:root {
+    --color-shades-dark: rgb(25,25,25);
+}
 
 html {
     box-sizing: border-box;
@@ -60,4 +63,20 @@ button:focus {
   outline: 4px solid green;
 }
 
+/* Navbar */
+#navbar a {
+    --text-color: var(--color-shades-dark);
+    border-block-end: 3px solid var(--color-shades-dark, transparent);
+   color: var(--text-color);
+   display: inline-block;
+   margin-block-end: 0.5rem;
+   margin-inline-end: 0.5rem;
+   padding: 0.1rem;
+   text-decoration: none;
+}
+
+/* https://developer.mozilla.org/en-US/docs/Web/CSS/:where#forgiving_selector_parsing */
+a:where(:hover, :focus) {
+    --border-color: var(--text-color);
+}
 

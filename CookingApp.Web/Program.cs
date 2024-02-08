@@ -64,6 +64,7 @@ if (app.Environment.IsDevelopment())
 // app.UseAntiforgery();
 
 app.UseHttpsRedirection();
+app.UseStaticFiles();
 
 app.MapCounter();
 app.MapRecipe();

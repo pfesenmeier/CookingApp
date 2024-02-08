@@ -1,0 +1,63 @@
+/* TODO https://www.joshwcomeau.com/css/custom-css-reset/ */
+
+html {
+    box-sizing: border-box;
+}
+
+/* https://css-tricks.com/inheriting-box-sizing-probably-slightly-better-best-practice/ */
+*, *:before, *:after {
+    box-sizing: inherit;
+}
+
+body {
+    font-family: system-ui, sans-serif;
+}
+
+label,
+input,
+button,
+select,
+legend,
+textarea {
+    /* both relative to document font size */
+    font-size: 1.3rem;
+    line-height: 1.2
+}
+
+form div {
+    margin-top: 1rem;
+}
+
+form {
+    width: 30em;
+    max-width: 90%;
+    margin: 0 auto;
+}
+
+label {
+    margin-bottom: 0.4rem;
+    display: block;
+}
+
+input,
+textarea {
+    padding: 0.4rem;
+    width: 100%;
+    border: 1px solid;
+}
+
+button {
+  margin-top: 2rem;
+  background: #3740ff;
+  color: #fff;
+  border: none;
+  padding: 0.6rem;
+}
+
+button:hover,
+button:focus {
+  background: #272eb5;
+  outline: 4px solid green;
+}
+
+

@@ -1,7 +1,8 @@
 ﻿using System.Data.Common;
-using Dapper;
 
 using CookingApp.Data.Model;
+
+using Dapper;
 
 namespace CookingApp.Data;
 
@@ -32,5 +33,13 @@ public class RecipeRepository(DbDataSource dbDataSource)
         DbConnection connection = await dbDataSource.OpenConnectionAsync();
 
         return await connection.QueryAsync<Recipe>("SELECT * FROM recipes;");
+    }
+
+    public async Task<IEnumerable<Recipe>> GetRecipesByUserIdAsync(Guid userid)
+    {
+        DbConnection connection = await dbDataSource.OpenConnectionAsync();
+
+        return await connection.QueryAsync<Recipe>(
+                @"SELECT * FROM recipes WHERE ""userid"" = @userid;", new { userid });
     }
 }

@@ -3,7 +3,7 @@ using CookingApp.Data.Model;
 
 using Microsoft.AspNetCore.Mvc;
 
-namespace CookingApp.Web.Route;
+namespace CookingApp.Web.Routes;
 
 public static class RecipeRoutes
 {
@@ -11,13 +11,23 @@ public static class RecipeRoutes
     {
         _ = app.MapGet("/recipe", async (
                     RecipeRepository recipeRepository,
-                    TemplateDictionary templateDictionary) =>
+                    TemplateDictionary templateDictionary,
+                    HttpContext context
+                    ) =>
                 {
-                    IEnumerable<Recipe> recipes = await recipeRepository.GetRecipes();
+                    if (!context.Request.Cookies.TryGetValue("userid", out string? useridCookie) ||
+                            !Guid.TryParse(useridCookie, out Guid userid))
+                    {
+                        return TypedResults.RedirectToRoute("login");
+                    }
+
+                    IEnumerable<Recipe> recipes = await recipeRepository.GetRecipesByUserIdAsync(userid);
+
                     Dictionary<string, object> renderData = [];
                     renderData.Add("recipes", recipes);
                     HandlebarsTemplate handlebarsTemplate =
                         templateDictionary[@"Views\recipe\list\list.hbs"];
+
                     return Results.Extensions.Html(handlebarsTemplate(renderData));
                 }).WithName("recipes");
 

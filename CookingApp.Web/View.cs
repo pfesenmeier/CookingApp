@@ -14,15 +14,31 @@ public class ViewFactory(ILogger<ViewFactory> logger)
         });
         TemplateDictionary handlbarHandlers = [];
 
+        List<string> templates = [];
         foreach (string template in Directory.EnumerateFiles("Views", "*.hbs", SearchOption.AllDirectories))
         {
+            if (template.Contains("partials"))
+            {
+                string fileName = Path.GetFileNameWithoutExtension(template);
+                logger.LogDebug("Adding template {Template} as partial {Name}", template, fileName);
 
+                handlebars.RegisterTemplate(fileName, File.ReadAllText(template));
+            }
+            else
+            {
+                templates.Add(template);
+            }
+        }
+
+        foreach (string template in templates)
+        {
             try
             {
                 HandlebarsTemplate handler = handlebars.CompileView(template);
-                string viewName = Path.GetFileNameWithoutExtension(template);
-                logger.LogDebug("Adding template {Template} under key {Key}", template, viewName);
-                handlbarHandlers.Add(viewName, handler);
+                string fileName = Path.GetFileNameWithoutExtension(template);
+
+                logger.LogDebug("Adding template {Template} under key {Key}", template, fileName);
+                handlbarHandlers.Add(fileName, handler);
             }
             catch (HandlebarsCompilerException)
             {

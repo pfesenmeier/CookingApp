@@ -1,0 +1,10 @@
+  {{!-- TODO https://web.dev/articles/website-navigation --}}
+  <div id="navbar">
+    <h1>CookingAdventures</h1>
+    {{#if user}}
+        <a href="/profile/{{user.id}}">{{user.username}}</a>
+    {{else}}
+        <a href="/login">Login</a>
+    {{/if}}
+        <a href="/recipe">Recipes</a>
+  </div>

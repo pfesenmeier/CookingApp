@@ -1,76 +1,111 @@
 using CookingApp.Data;
+using CookingApp.Data.Model;
+using CookingApp.Data.Monad;
 using CookingApp.Web;
-using CookingApp.Web.Routes;
 
-using HandlebarsDotNet;
+using Microsoft.AspNetCore.Mvc;
 
-IHandlebars handlebars = Handlebars.Create(new HandlebarsConfiguration()
+WebApplication app = WebApplication.CreateBuilder(args)
+    .AddAppServices()
+    .Build()
+    .UseAppFeatures();
+
+#region recipes
 {
-    FileSystem = new DiskFileSystem()
-});
-
-WebApplicationBuilder builder = WebApplication.CreateBuilder(args);
-
-// Add services to the container.
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
-
-// TODO
-// builder.Services.AddAntiforgery();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
-
-// compile all handlebar files
-{
-    TemplateDictionary handlbarHandlers = [];
-
-    // TODO skip partials that are not used as HTMX...
-    foreach (string template in Directory.EnumerateFiles("Views", "*.hbs", SearchOption.AllDirectories))
+    RouteGroupBuilder recipes = app.MapGroup("/recipe");
+    _ = recipes.MapGet("/", async (
+        View view,
+        RecipeRepository recipeRepository,
+        HttpContext context) =>
     {
-        Console.WriteLine(template);
+        // TODO add authentication to do this...
+        if (!context.Request.Cookies.TryGetValue("userid", out string? useridCookie) ||
+                !Guid.TryParse(useridCookie, out Guid userid))
+        {
+            return TypedResults.RedirectToRoute("login");
+        }
 
-        try
+        IEnumerable<Recipe> recipes = await recipeRepository.GetRecipesByUserIdAsync(userid);
+        Dictionary<string, object> renderData = new() { { "recipes", recipes } };
+
+        return view.Render("list", renderData);
+    }).WithName("recipes");
+    _ = recipes.MapGet("/{id}", async (
+            Guid id,
+            RecipeRepository recipeRepository,
+            View view
+            ) => view.Render("show", await recipeRepository.GetRecipeAsync(id)));
+    _ = recipes.MapGet("/create", (View view) => view.Render("create"));
+    _ = recipes.MapPost("/create", async (
+            RecipeRepository recipeRepository,
+            [FromForm] string title,
+            [FromForm] string ingredients,
+            [FromForm] string steps) =>
         {
-            HandlebarsTemplate handler = handlebars.CompileView(template);
-            handlbarHandlers.Add(template, handler);
-        }
-        catch (HandlebarsCompilerException)
-        {
-            Console.WriteLine($"Error compiling template {template}");
-            throw;
-        }
-    }
-    builder.Services.AddSingleton(handlbarHandlers);
+            const StringSplitOptions options =
+                StringSplitOptions.TrimEntries |
+                StringSplitOptions.RemoveEmptyEntries;
+            string[] ingredientList = ingredients.Split(Environment.NewLine, options);
+            string[] stepList = steps.Split(Environment.NewLine, options);
+
+            await recipeRepository.CreateAsync(title, ingredientList, stepList);
+
+            // TODO recipes frontend
+            // TODO only on success
+            // TODO show server error on error
+            // TODO repopulate with original values if bad
+            return Results.RedirectToRoute("recipes");
+        })
+        // TODO
+        .DisableAntiforgery();
 }
+#endregion recipes
 
-// start database connection
-string connectionString =
-  builder.Configuration.GetConnectionString("Postgres")
-  ?? throw new InvalidOperationException("ConnectionString 'Postgres' is not defined");
-builder.Services.AddDb(connectionString);
-
-builder.Services.AddScoped<RecipeRepository>();
-builder.Services.AddScoped<UserRepository>();
-
-WebApplication app = builder.Build();
-
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+#region users
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    RouteGroupBuilder login = app.MapGroup("/login");
+    _ = login.MapGet("/", (View view) => view.Render("login")).WithName("login");
+    _ = login.MapPost("/", async (
+            HttpContext context,
+            UserRepository userRepository,
+            [FromForm] string username) =>
+        {
+            Maybe<User> user = await userRepository.GetUserByUsername(username);
+
+            if (user.IsNone)
+            {
+                return Results.BadRequest("user not found");
+            }
+
+            context.Response.Cookies.Append("userid", user.Some.Id.ToString());
+
+            return Results.RedirectToRoute("recipes");
+        })
+         // TODO
+         .DisableAntiforgery();
+
+    RouteGroupBuilder signup = app.MapGroup("/signup");
+    _ = signup.MapGet("/", (View view) => view.Render("signup")).WithName("signup");
+    _ = signup.MapPost("/", async (
+            UserRepository userRepository,
+            HttpContext context,
+            [FromForm] string username) =>
+        {
+            await userRepository.CreateAsync(username);
+
+            Maybe<User> user = await userRepository.GetUserByUsername(username);
+
+            // TODO
+            if (user.IsNone)
+            {
+                return TypedResults.Problem("user creation unsuccessful");
+            }
+
+            context.Response.Cookies.Append("userid", user.Some.Id.ToString());
+
+            return Results.RedirectToRoute("recipes");
+        });
 }
-
-// TODO
-// app.UseAntiforgery();
-
-app.UseHttpsRedirection();
-app.UseStaticFiles();
-
-app.MapCounter();
-app.MapRecipe();
-app.MapUserRoutes();
-
-// .WithName("GetWeatherForecast")
-// .WithOpenApi();
+#endregion users
 
 app.Run();

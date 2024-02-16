@@ -12,6 +12,18 @@
 - [ ] SSO
 - [ ] map all routes automatically?
 
+## Purpose
+
+- Maybe this is a personal recipe development tool
+    - "branch" recipes
+    - private portal (recipes in development, results)
+    - public static site
+    - gimics like ("try and imagine what this thing is made out of") [a la Claire Saffiz]
+    - beta testers
+    - platform others could use?
+    - could be interesting to see how people version data... not sure a log database is best here
+
+
 ## User-facing
 
 - [ ] Navbar

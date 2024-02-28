@@ -32,6 +32,11 @@ public static class WebApplicationBuilderExtensions
             {
                 ILogger<ViewFactory> logger = container.GetRequiredService<ILogger<ViewFactory>>();
                 ViewFactory viewFactory = new(logger);
+
+                if (builder.Environment.IsDevelopment())
+                {
+                    return viewFactory.CreateHotReloadableView();
+                }
                 return viewFactory.Create();
             }
 

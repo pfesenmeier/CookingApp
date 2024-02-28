@@ -1,4 +1,6 @@
 using CookingApp.Data;
+using CookingApp.Web.FileWatcher;
+
 using HandlebarsDotNet;
 
 namespace CookingApp.Web;
@@ -14,8 +16,15 @@ public static class WebApplicationBuilderExtensions
 
         // TODO
         // builder.Services.AddAntiforgery();
-        builder.Services.AddEndpointsApiExplorer();
-        builder.Services.AddSwaggerGen();
+        Console.WriteLine(builder.Environment.EnvironmentName);
+        if (builder.Environment.IsDevelopment())
+        {
+            builder.Services.AddEndpointsApiExplorer();
+            builder.Services.AddSwaggerGen();
+            Console.WriteLine(Environment.CurrentDirectory);
+            builder.Services.AddSingleton(container => new FileChangedEventSource("Views",
+                        container.GetRequiredService<ILogger<FileChangedEventSource>>()));
+        }
 
         builder.Services.AddSingleton
         (

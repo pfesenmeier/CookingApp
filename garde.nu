@@ -32,4 +32,10 @@ def "db start" [] {
   docker compose "-f" $db_compose_path up
 }
 
+def "app start" [] {
+  dotnet run  --project CookingApp.Web
+}
 
+def "app watch" [] {
+  dotnet watch  --project CookingApp.Web
+}

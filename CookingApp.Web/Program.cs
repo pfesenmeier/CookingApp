@@ -2,6 +2,7 @@ using CookingApp.Data;
 using CookingApp.Data.Model;
 using CookingApp.Data.Monad;
 using CookingApp.Web;
+using CookingApp.Web.FileWatcher;
 
 using Microsoft.AspNetCore.Mvc;
 
@@ -9,7 +10,34 @@ WebApplication app = WebApplication.CreateBuilder(args)
     .AddAppServices()
     .Build()
     .UseAppFeatures();
+#region hot-reload
+{
+    if (app.Environment.IsDevelopment())
+    {
+        app.MapGet("/view-updates", async (HttpContext ctx, FileChangedEventSource source, CancellationToken ct) =>
+        {
+            ctx.Response.Headers.Add("Content-Type", "text/event-stream");
+            while (!ct.IsCancellationRequested)
+            {
+                var _ = await source.WaitForNewChange();
+                await ctx.Response.WriteAsync($"data: ");
+                await ctx.Response.WriteAsync("file changed");
+                await ctx.Response.WriteAsync($"\n\n");
+                await ctx.Response.Body.FlushAsync();
+            }
+        });
+    }
+}
+#endregion hot-reload
 
+#region home
+{
+    app.MapGet("/", async (View view) =>
+    {
+       return view.Render("homepage");
+    });
+}
+#endregion home
 #region recipes
 {
     RouteGroupBuilder recipes = app.MapGroup("/recipe");
